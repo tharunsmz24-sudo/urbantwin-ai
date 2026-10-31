@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UrbanTwin AI – Tamil Nadu Climate Resilience Digital Twin | Heat-Risk Platform</title>
+  <meta name="description" content="An interactive AI-powered urban climate digital twin focused on Tamil Nadu, India, monitoring heat islands across all 38 districts and key urban monitoring zones with resilient intervention simulation.">
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+  <!-- Custom Design System CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       APPLICATION SIDEBAR
+       ============================================================ -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-header">
+      <div class="app-brand-icon">
+        <i class="fa-solid fa-earth-americas"></i>
+      </div>
+      <div class="brand-text">
+        <h1>UrbanTwin AI</h1>
+        <span class="brand-badge">SaaS Intelligence v2.5</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-title">Navigation & Workflows</span>
+      <a href="#landing" class="nav-item" data-target="landing" id="nav-link-landing">
+        <i class="fa-solid fa-house"></i>
+        <span>Platform Overview</span>
+      </a>
+      <a href="#overview" class="nav-item active" data-target="overview" id="nav-link-overview">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Climate Overview</span>
+      </a>
+      <a href="#map" class="nav-item" data-target="map" id="nav-link-map">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>Tamil Nadu Map</span>
+      </a>
+      <a href="#analysis" class="nav-item" data-target="analysis" id="nav-link-analysis">
+        <i class="fa-solid fa-microscope"></i>
+        <span>Heat-Risk Analysis</span>
+      </a>
+      <a href="#simulator" class="nav-item" data-target="simulator" id="nav-link-simulator">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Intervention Simulator</span>
+      </a>
+      <a href="#recommendations" class="nav-item" data-target="recommendations" id="nav-link-recommendations">
+        <i class="fa-solid fa-shield-heart"></i>
+        <span>Recommendations</span>
+      </a>
+      <a href="#data" class="nav-item" data-target="data" id="nav-link-data">
+        <i class="fa-solid fa-database"></i>
+        <span>Data Explorer</span>
+      </a>
+
+      <span class="nav-section-title" id="sidebarRoleSectionTitle">Role Workspaces</span>
+      <a href="#gov-dashboard" class="nav-item" data-target="gov-dashboard" id="nav-link-gov" style="display: none;">
+        <i class="fa-solid fa-landmark text-primary"></i>
+        <span>Municipal Planning</span>
+      </a>
+      <a href="#industry-dashboard" class="nav-item" data-target="industry-dashboard" id="nav-link-industry" style="display: none;">
+        <i class="fa-solid fa-building-shield" style="color: #c084fc;"></i>
+        <span>Enterprise Facilities</span>
+      </a>
+      <a href="#admin-dashboard" class="nav-item" data-target="admin-dashboard" id="nav-link-admin" style="display: none;">
+        <i class="fa-solid fa-screwdriver-wrench text-danger"></i>
+        <span>Platform Admin</span>
+      </a>
+
+      <span class="nav-section-title">Governance</span>
+      <a href="#methodology" class="nav-item" data-target="methodology" id="nav-link-methodology">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <span>Methodology & Ethics</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="challenge-stamp">
+        <i class="fa-solid fa-award stamp-icon"></i>
+        <div class="stamp-text">
+          <strong>Challenge 13: AI for Impact</strong>
+          <span>Domain: Climate Resilience</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT WRAPPER
+       ============================================================ -->
+  <div class="main-wrapper">
+
+    <!-- TOP STICKY NAVBAR -->
+    <header class="top-navbar">
+      <div class="nav-left">
+        <button class="btn-sidebar-toggle" id="sidebarToggleBtn" aria-label="Toggle Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span id="liveStatusText">DIGITAL TWIN LIVE</span>
+          <span class="text-dim">&bull;</span>
+          <span id="liveTimeTicker">12:00:00 UTC</span>
+        </div>
+      </div>
+
+      <div class="nav-right" style="gap: 12px; align-items: center; flex-wrap: wrap;">
+        <!-- DEMO ROLE SWITCHER (For Pilot Evaluation) -->
+        <div class="role-quick-switcher" title="Switch persona to test role-specific dashboards">
+          <span style="color: var(--text-dim); font-size: 0.72rem;"><i class="fa-solid fa-user-gear"></i> Role:</span>
+          <button class="role-quick-btn active" data-role="public" onclick="App.switchRole('public')">Public</button>
+          <button class="role-quick-btn" data-role="government" onclick="App.switchRole('government')">Gov / IAS</button>
+          <button class="role-quick-btn" data-role="industry" onclick="App.switchRole('industry')">Industry</button>
+          <button class="role-quick-btn" data-role="admin" onclick="App.switchRole('admin')">Admin</button>
+        </div>
+
+        <div class="district-meta-strip" id="topDistrictMetaStrip">
+          <span class="district-meta-item"><i class="fa-solid fa-fingerprint text-cyan"></i> <span id="navDistrictCode">TN-CHN</span></span>
+          <span class="district-meta-item"><i class="fa-solid fa-location-dot text-cyan"></i> <span id="navDistrictGeo">13.08°N, 80.27°E</span></span>
+          <span class="district-meta-item"><i class="fa-solid fa-cloud-sun-rain text-cyan"></i> <span id="navLiveStationTag">Live Station</span></span>
+          <span id="navDistrictStatusBadge" class="badge-verified"><i class="fa-solid fa-circle-check"></i> IMD / Earthdata</span>
+        </div>
+
+        <div class="zone-selector-wrapper">
+          <label for="globalZoneSelect"><i class="fa-solid fa-crosshairs"></i> District:</label>
+          <select id="globalZoneSelect" class="custom-select" aria-label="Select Target District or Urban Zone">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
+
+        <!-- AUTH LOGIN / USER PROFILE BUTTON -->
+        <div id="authNavWrapper">
+          <button class="btn btn-outline-cyan btn-sm" id="btnOpenAuthModal" onclick="App.openAuthModal('login')">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN SCROLLABLE CONTENT CONTAINER -->
+    <main class="content-container">
+
+      <!-- ========================================================
+           SAAS MODULE 0: PROFESSIONAL PUBLIC LANDING PAGE
+           ======================================================== -->
+      <section class="content-section" id="section-landing">
+        <div class="saas-landing-hero">
+          <div class="saas-hero-badge">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Tamil Nadu Climate Intelligence SaaS Platform &bull; Challenge 13</span>
+          </div>
+          <h1 class="saas-hero-title">Understand Climate Risk.<br>Make Smarter Decisions.</h1>
+          <p class="saas-hero-desc">
+            Explore local climate conditions, identify urban heat risks, and evaluate climate resilience strategies with an intelligent geographic platform across all 38 districts of Tamil Nadu.
+          </p>
+          <div class="saas-cta-group">
+            <button class="btn btn-primary" onclick="App.navigateTo('overview')">
+              <i class="fa-solid fa-compass"></i> Explore Climate Data
+            </button>
+            <button class="btn btn-outline-cyan" onclick="App.openAuthModal('register')">
+              <i class="fa-solid fa-user-plus"></i> Get Started Free
+            </button>
+            <button class="btn btn-ghost" onclick="App.navigateTo('map')">
+              <i class="fa-solid fa-map-location-dot"></i> Interactive Map Preview
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 DISTINCT ENTRY POINTS -->
+        <div class="saas-solutions-grid">
+          <!-- Government Solutions -->
+          <div class="saas-solution-card">
+            <div class="saas-solution-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+              <i class="fa-solid fa-landmark"></i>
+            </div>
+            <h3 class="saas-solution-title">Government & Municipalities</h3>
+            <p class="saas-solution-desc">
+              Empower Municipal Corporations, District Collectors, and TNDSMA with multi-criteria heat vulnerability indices, ward-level micro-urban monitoring, and verified intervention simulations.
+            </p>
+            <ul style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.6;">
+              <li><i class="fa-solid fa-check text-cyan"></i> 38 District heat vulnerability mapping</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Green Tamil Nadu Mission canopy targets</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Emergency cooling shelter planning</li>
+            </ul>
+            <button class="btn btn-outline-cyan btn-sm" onclick="App.switchRole('government'); App.navigateTo('gov-dashboard')">
+              Access Municipal Suite &rarr;
+            </button>
+          </div>
+
+          <!-- Industry Solutions -->
+          <div class="saas-solution-card">
+            <div class="saas-solution-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+              <i class="fa-solid fa-building-shield"></i>
+            </div>
+            <h3 class="saas-solution-title">Industry & Enterprise ESG</h3>
+            <p class="saas-solution-desc">
+              Protect outdoor workforces, assess campus thermal exposure, evaluate solar-reflective cool roofs, and satisfy corporate sustainability and occupational heat-stress reporting.
+            </p>
+            <ul style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.6;">
+              <li><i class="fa-solid fa-check text-cyan"></i> Multi-facility site risk management</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Worker heat-stress exposure analytics</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Cool roof & perimeter shading simulator</li>
+            </ul>
+            <button class="btn btn-outline-cyan btn-sm" onclick="App.switchRole('industry'); App.navigateTo('industry-dashboard')">
+              Access Enterprise Suite &rarr;
+            </button>
+          </div>
+
+          <!-- Public Explorer -->
+          <div class="saas-solution-card">
+            <div class="saas-solution-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              <i class="fa-solid fa-people-roof"></i>
+            </div>
+            <h3 class="saas-solution-title">Public Climate Explorer</h3>
+            <p class="saas-solution-desc">
+              Free, transparent environmental awareness for citizens, researchers, and community organizations to track local heat conditions and access safety guidance.
+            </p>
+            <ul style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.6;">
+              <li><i class="fa-solid fa-check text-cyan"></i> District air & surface temperature checks</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Summer heatwave safety protocols</li>
+              <li><i class="fa-solid fa-check text-cyan"></i> Public hydration & shade directory</li>
+            </ul>
+            <button class="btn btn-outline-cyan btn-sm" onclick="App.switchRole('public'); App.navigateTo('overview')">
+              Explore Open Data &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- SAAS DATA ETHICS & TRANSPARENCY NOTICE -->
+        <div class="card" style="margin-bottom: 30px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-shield-halved text-cyan"></i>
+              <span>Data Provenance & Scientific Integrity Standard</span>
+            </div>
+          </div>
+          <p style="color: var(--text-sub); font-size: 0.9rem; line-height: 1.6;">
+            UrbanTwin AI distinguishes between verified historical observations (India Meteorological Department 1991–2020 normals), satellite radiometric surface scans (NASA MODIS/Landsat), open meteorological station feeds (Open-Meteo), and model-generated simulation estimates. We do not display unverified claims or fake machine learning predictions.
+          </p>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 1: DASHBOARD OVERVIEW (TAMIL NADU)
+           ======================================================== -->
+      <section class="content-section active" id="section-overview">
+        <div class="section-hero">
+          <div>
+            <h2>Tamil Nadu Climate & Heat Vulnerability Overview</h2>
+            <p>State-wide synthesis of Land Surface Temperature (LST), canopy cover, and demographic exposure across all 38 districts and key metropolitan centers of Tamil Nadu, India.</p>
+          </div>
+          <button class="btn btn-primary" onclick="App.navigateTo('simulator')">
+            <i class="fa-solid fa-sliders"></i> Test Interventions
+          </button>
+        </div>
+
+        <!-- MVP WORKFLOW STEPPING BANNER -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0, 240, 255, 0.08); border: 1px solid var(--border-cyan); border-radius: var(--radius-md); padding: 12px 18px; margin-bottom: 22px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <i class="fa-solid fa-route text-cyan" style="font-size: 1.15rem;"></i>
+            <span style="font-size: 0.88rem; font-weight: 600; color: #ffffff;">
+              MVP Decision Workflow:
+            </span>
+            <span style="font-size: 0.82rem; color: var(--text-sub);">
+              1. Select District &rarr; 2. Analyze Climate &rarr; 3. Identify Heat Risk &rarr; 4. Simulate Interventions &rarr; 5. Compare Results &rarr; 6. Recommendations
+            </span>
+          </div>
+          <span class="badge badge-subtle"><i class="fa-solid fa-award"></i> Challenge 13: Climate Resilience</span>
+        </div>
+
+        <!-- KPI GRID -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Tamil Nadu Districts</span>
+              <div class="kpi-icon"><i class="fa-solid fa-map"></i></div>
+            </div>
+            <div class="kpi-value" id="kpiTotalZones">38 Districts</div>
+            <div class="kpi-subtitle">State-wide digital twin tracking</div>
+          </div>
+
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-header">
+              <span class="kpi-title">High Heat-Risk Districts</span>
+              <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--risk-critical);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+            <div class="kpi-value text-danger" id="kpiHighRiskZones">17 High Risk</div>
+            <div class="kpi-subtitle">Requiring urgent resilience priority</div>
+          </div>
+
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-header">
+              <span class="kpi-title">Avg State Surface Temp</span>
+              <div class="kpi-icon" style="background: rgba(249, 115, 22, 0.15); color: var(--risk-high);"><i class="fa-solid fa-temperature-high"></i></div>
+            </div>
+            <div class="kpi-value text-warning" id="kpiAvgTemp">38.8°C</div>
+            <div class="kpi-subtitle">Summer peak thermal anomaly</div>
+          </div>
+
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header">
+              <span class="kpi-title">Avg Green Canopy Cover</span>
+              <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--risk-low);"><i class="fa-solid fa-tree"></i></div>
+            </div>
+            <div class="kpi-value text-success" id="kpiAvgGreen">24.1%</div>
+            <div class="kpi-subtitle">Green Tamil Nadu Mission target: 35.0%</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">State Vulnerable Pop</span>
+              <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="kpi-value" id="kpiPopExposure">15.2M (21%)</div>
+            <div class="kpi-subtitle">Geriatric, pediatric & outdoor workers</div>
+          </div>
+        </div>
+
+        <!-- MAIN OVERVIEW DUAL CARDS -->
+        <div class="dashboard-main-grid">
+          <!-- Active Spotlight Card -->
+          <div class="card spotlight-card">
+            <div class="spotlight-top">
+              <div>
+                <span class="zone-badge badge-subtle" style="margin-bottom: 8px;">Selected Focus Location</span>
+                <h3 id="spotZoneName" style="font-size: 1.4rem;">Chennai District</h3>
+                <span id="spotZoneType" class="text-muted" style="font-size: 0.85rem;">TN-CHN &bull; State Capital & Coastal Mega-Metropolis</span>
+              </div>
+              <div class="spotlight-score-badge">
+                <span id="spotZoneBadge" class="zone-badge badge-critical">Critical Risk</span>
+                <div class="spotlight-score-val" id="spotZoneScore">69.6 / 100</div>
+              </div>
+            </div>
+
+            <div class="spotlight-stats-grid">
+              <div class="spot-stat-item">
+                <span>Land Surface Temp (LST)</span>
+                <b id="spotZoneTemp" style="color: var(--risk-high);">41.2°C LST</b>
+                <small class="text-muted">NASA MODIS Thermal</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Current Air Temp (Normal)</span>
+                <b id="spotZoneAirTemp" style="color: var(--cyan-primary);">36.4°C Air Temp</b>
+                <small class="text-muted">IMD Climatological Range: 24-41°C</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Green Canopy Cover</span>
+                <b id="spotZoneGreen">9.8%</b>
+                <small class="text-muted">Target: 33% (FSI)</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Building Canyon Density</span>
+                <b id="spotZoneDensity">92%</b>
+                <small class="text-muted">Built Impervious Surface</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Vulnerable Inhabitants</span>
+                <b id="spotZonePop">1,850,000</b>
+                <small id="spotZonePopExposure" class="text-muted">Heat Exposure Score: 96/100</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Water Availability Index</span>
+                <b id="spotZoneWater" style="color: var(--teal-accent);">34 / 100</b>
+                <small class="text-muted">TWAD Civic Hydration</small>
+              </div>
+            </div>
+
+            <!-- Climate Summary Section Explaining Selected District's Conditions -->
+            <div style="margin-top: 16px; padding: 14px; background: rgba(0,0,0,0.25); border-radius: var(--radius-sm); border-left: 3px solid var(--cyan-primary);">
+              <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cyan-primary); font-weight: 600; display: block; margin-bottom: 4px;">
+                <i class="fa-solid fa-cloud-sun-rain"></i> District Climate & Vulnerability Summary
+              </span>
+              <p class="spotlight-desc" id="spotZoneDesc" style="margin-top: 0; font-size: 0.88rem; line-height: 1.5;">
+                High-density coastal metropolis experiencing extreme urban heat island effect, high relative humidity, low vegetative shade in the urban core, and massive pedestrian heat exposure.
+              </p>
+              <div style="display: flex; gap: 10px; margin-top: 8px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap;">
+                <span><i class="fa-solid fa-database text-cyan"></i> Source: <b id="spotZoneSource">IMD Climatological Normal Tables / NASA MODIS</b></span>
+                <span><i class="fa-solid fa-certificate text-cyan"></i> Status: <b id="spotZoneVerification" class="text-success">Verified Reference Dataset</b></span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-outline-cyan" onclick="App.navigateTo('map')">
+                <i class="fa-solid fa-map-location-dot"></i> Step 1: View Map
+              </button>
+              <button class="btn btn-sm btn-outline-cyan" onclick="App.navigateTo('analysis')">
+                <i class="fa-solid fa-microscope"></i> Step 2: Risk Breakdown
+              </button>
+              <button class="btn btn-sm btn-primary" onclick="App.navigateTo('simulator')">
+                <i class="fa-solid fa-sliders"></i> Step 3: Simulate Interventions
+              </button>
+              <button class="btn btn-sm btn-ghost" onclick="App.navigateTo('recommendations')">
+                <i class="fa-solid fa-shield-heart"></i> Step 4: Recommendations
+              </button>
+            </div>
+          </div>
+
+          <!-- Heat Risk Priority Alerts List -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-bell"></i>
+                <span>Thermal Vulnerability Alerts (Tamil Nadu)</span>
+              </div>
+              <span class="badge badge-subtle">TNDSMA Priority</span>
+            </div>
+            <div class="alerts-list" id="overviewRiskAlertsList">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- DISTRICT VS STATE AVERAGE COMPARISON CHART -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-code-compare text-cyan"></i>
+              <span id="overviewComparisonChartTitle">Selected District vs. Tamil Nadu State Average Benchmark</span>
+            </div>
+            <span class="badge badge-subtle">Normalized Comparative Analysis</span>
+          </div>
+          <div style="height: 300px; position: relative;">
+            <canvas id="districtVsStateChart"></canvas>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; display: flex; justify-content: space-between;">
+            <span><i class="fa-solid fa-circle-info"></i> Comparison benchmark: Tamil Nadu State Average (38 Districts Normal) across thermal hazard, ecological buffer, and vulnerability indices.</span>
+            <span>Period: IMD Normal 1991-2020 / MODIS LST</span>
+          </div>
+        </div>
+
+        <!-- CHARTS SECTION IN OVERVIEW -->
+        <div class="dashboard-main-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Top Ranked Heat-Risk Districts (UHRI)</span>
+              </div>
+              <span class="text-muted" style="font-size: 0.75rem;">Highest to Lowest</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="riskDistributionChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-temperature-half"></i>
+                <span>Surface LST vs. Ambient Air Temp (°C)</span>
+              </div>
+              <span class="text-muted" style="font-size: 0.75rem;">Across Key Districts</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="tempComparisonChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer-banner">
+          <i class="fa-solid fa-circle-info"></i>
+          <span><b>DATA DISTINCTION NOTICE:</b> All district baselines are anchored on official India Meteorological Department (IMD) climatological normals and NASA MODIS Land Surface Temperature (LST) observations. Micro-urban zones and intervention delta cooling values are computational simulation models calibrated under Challenge 13 AI for Impact. Sample simulations are never conflated with live certified IMD stations.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 2: DISTRICT-WISE CLIMATE ANALYSIS (ALL 38 DISTRICTS)
+           ======================================================== -->
+      <section class="content-section" id="section-climate">
+        <div class="section-hero">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="badge badge-subtle" id="climateDistrictCodeBadge">TN-CHN</span>
+              <span id="climateDistrictStatusBadge" class="badge-verified"><i class="fa-solid fa-circle-check"></i> IMD Climatological Normal</span>
+            </div>
+            <h2 id="climateDistrictHeading">Chennai District Climate & Meteorological Intelligence</h2>
+            <p id="climateDistrictSubheading">Official climatological profile, seasonal precipitation patterns, thermal thresholds, and environmental indicators for Chennai district, Tamil Nadu.</p>
+          </div>
+          <button class="btn btn-primary" onclick="App.navigateTo('analysis')">
+            <i class="fa-solid fa-microscope"></i> Heat-Risk Breakdown
+          </button>
+        </div>
+
+        <!-- SECTION A: TEMPERATURE METRICS -->
+        <h3 style="font-size: 1.15rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-temperature-arrow-up text-cyan"></i>
+          <span>A. Temperature & Thermal Surface Profile</span>
+        </h3>
+        <div class="climate-metrics-grid">
+          <div class="climate-metric-box accent-orange">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-thermometer"></i> Ambient Air Temp</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-cloud-sun"></i></div>
+            </div>
+            <div class="climate-box-value" id="climAmbientTemp">36.4°C</div>
+            <div class="climate-box-sub">
+              <span>Observation: <b>May Normal (Peak Summer)</b></span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box accent-orange">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-fire-flame-curved"></i> Land Surface Temp (LST)</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-satellite"></i></div>
+            </div>
+            <div class="climate-box-value" id="climSurfaceTemp">41.2°C</div>
+            <div class="climate-box-sub">
+              <span>Satellite: <b>NASA MODIS / Terra Thermal</b></span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box accent-blue">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-temperature-low"></i> Minimum Temperature</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-temperature-half"></i></div>
+            </div>
+            <div class="climate-box-value" id="climMinTemp">24.2°C</div>
+            <div class="climate-box-sub">
+              <span>Winter Mean Normal (Jan-Feb)</span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box accent-orange">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-temperature-high"></i> Maximum Temperature</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-sun"></i></div>
+            </div>
+            <div class="climate-box-value" id="climMaxTemp">41.5°C</div>
+            <div class="climate-box-sub">
+              <span>Recorded Peak Extremum (°C)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION B: CLIMATE INDICATORS -->
+        <h3 style="font-size: 1.15rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-cloud-showers-heavy text-cyan"></i>
+          <span>B. Meteorological & Atmospheric Indicators</span>
+        </h3>
+        <div class="climate-metrics-grid">
+          <div class="climate-metric-box accent-blue">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-cloud-rain"></i> Annual Rainfall</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-droplet"></i></div>
+            </div>
+            <div class="climate-box-value" id="climAnnualRainfall">1,280 mm</div>
+            <div class="climate-box-sub">
+              <span>Monsoon Season: <b>65% in NE Monsoon (Oct-Dec)</b></span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box accent-blue">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-droplet-percent"></i> Relative Humidity</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-water"></i></div>
+            </div>
+            <div class="climate-box-value" id="climHumidity">74%</div>
+            <div class="climate-box-sub">
+              <span>Coastal Maritime Heat Index Stress</span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-wind"></i> Mean Wind Speed</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            </div>
+            <div class="climate-box-value" id="climWindSpeed">14.2 km/h</div>
+            <div class="climate-box-sub">
+              <span>Breeze: <b>Bay of Bengal Sea Breeze</b></span>
+            </div>
+          </div>
+
+          <div class="climate-metric-box">
+            <div class="climate-box-header">
+              <span class="climate-box-title"><i class="fa-solid fa-bell"></i> Heatwave Status</span>
+              <div class="climate-box-icon"><i class="fa-solid fa-shield-virus"></i></div>
+            </div>
+            <div style="margin: 10px 0;">
+              <span id="climHeatwaveBadge" class="badge-heatwave-alert">Heatwave Advisory</span>
+            </div>
+            <div class="climate-box-sub" id="climHeatwaveSource">
+              <span>Authoritative Source: <b>IMD Regional Met Centre Chennai</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION C & D: ENVIRONMENTAL & RISK INDICATORS -->
+        <div class="dashboard-main-grid">
+          <!-- Environmental Indicators -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-leaf"></i>
+                <span>C. Environmental Characteristics & Canopy</span>
+              </div>
+              <span class="badge badge-subtle">FSI & MODIS Benchmarks</span>
+            </div>
+            <div class="spotlight-stats-grid">
+              <div class="spot-stat-item">
+                <span>Green Canopy Cover</span>
+                <b id="climGreenCover" style="color: var(--risk-low);">9.8%</b>
+                <small class="text-muted">Target: 33%</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Building Density</span>
+                <b id="climBuildingDensity" style="color: var(--risk-high);">92%</b>
+                <small class="text-muted">Urban Footprint</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Water Availability</span>
+                <b id="climWaterAvailability">34 / 100</b>
+                <small class="text-muted">TWAD Board Index</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Surface Albedo</span>
+                <b id="climAlbedo">0.14</b>
+                <small class="text-muted">Impervious Surface</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk & Resilience Indicators -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>D. Heat-Risk & Public Health Exposure</span>
+              </div>
+              <span class="badge badge-subtle">UHRI Model Score</span>
+            </div>
+            <div class="spotlight-stats-grid">
+              <div class="spot-stat-item">
+                <span>Heat-Risk Score (UHRI)</span>
+                <b id="climUhriScore" style="color: var(--risk-critical);">69.6 / 100</b>
+                <small id="climUhriBadge" class="zone-badge badge-critical">Critical Risk</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Population Exposure</span>
+                <b id="climPopExposure">Score: 96 / 100</b>
+                <small id="climVulnerablePop" class="text-muted">1.85M Vulnerable</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Healthcare Resilience</span>
+                <b id="climHealthResilience">82 / 100</b>
+                <small class="text-muted">Trauma Surge Index</small>
+              </div>
+              <div class="spot-stat-item">
+                <span>Active Cooling Centres</span>
+                <b id="climCoolingCentres">8 Facilities</b>
+                <small class="text-muted">TNDSMA Designated</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION E: CLIMATE CLASSIFICATION & SEASONAL PROFILE -->
+        <div class="climate-profile-card">
+          <div class="card-header" style="margin-bottom: 12px;">
+            <div class="card-title">
+              <i class="fa-solid fa-compass"></i>
+              <span>E. Climate Classification & Regional Agro-Climatic Dynamics</span>
+            </div>
+            <span class="badge badge-subtle" id="climAgroZoneBadge">North Eastern Coastal Zone</span>
+          </div>
+
+          <p id="climDistrictNarrative" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-sub);">
+            Chennai is situated in the North Eastern Agro-Climatic Zone of Tamil Nadu, featuring a Tropical Wet-and-Dry (Aw) climate under the Köppen classification. Summer temperatures are severely compounded by extreme maritime humidity from the Bay of Bengal, resulting in very high "feels-like" wet-bulb globe temperatures.
+          </p>
+
+          <div class="climate-profile-grid">
+            <div class="climate-profile-col">
+              <h4><i class="fa-solid fa-calendar-days"></i> Seasonal Rhythm & Microclimatic Variations</h4>
+              <div class="season-tag-list">
+                <div class="season-tag-item">
+                  <strong>Kathiri Veyyil / Agni Nakshatram (Peak Summer: May - June)</strong>
+                  <span>Intense dry thermal spike with diurnal land surface heating exceeding 42°C in dense built-up corridors before afternoon sea breezes trigger.</span>
+                </div>
+                <div class="season-tag-item">
+                  <strong>Southwest Monsoon (June - September)</strong>
+                  <span>Moderate precipitation (approx. 350-400 mm); cloud cover offers periodic thermal breaks though ambient humidity remains elevated.</span>
+                </div>
+                <div class="season-tag-item">
+                  <strong>Northeast Monsoon (October - December)</strong>
+                  <span>Primary annual rainfall season delivering ~60-70% of total precipitation. Crucial for reservoir replenishment and urban groundwater recharge.</span>
+                </div>
+                <div class="season-tag-item">
+                  <strong>Winter Period (January - February)</strong>
+                  <span>Mild, dry weather with mean minimum temperatures hovering around 21-24°C, representing the state's comfortable thermal envelope.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="climate-profile-col">
+              <h4><i class="fa-solid fa-triangle-exclamation"></i> Scientific Climatological Note</h4>
+              <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); padding: 16px; border: 1px solid var(--border-subtle);">
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                  <b>Scientific Caution:</b> Never treat single-day weather anomalies as permanent district climate normals. Tamil Nadu features distinct agro-climatic zones ranging from the High-Altitude Western Ghats (Nilgiris) to the Semi-Arid Southern Plains (Ramanathapuram, Virudhunagar) and Cauvery Delta (Thanjavur).
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem;">
+                  <div><i class="fa-solid fa-database text-cyan"></i> <b>Data Provider:</b> <span id="climDataSource">IMD Climatological Normal Tables & NASA Earthdata MOD11A1 LST</span></div>
+                  <div><i class="fa-solid fa-clock text-cyan"></i> <b>Reference Period:</b> <span id="climDataPeriod">1991-2020 IMD Normals / 2024-2026 MODIS LST</span></div>
+                  <div><i class="fa-solid fa-shield-check text-cyan"></i> <b>Verification Status:</b> <span id="climDataStatusText">Verified Climatological Reference Dataset</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS SECTION IN CLIMATE TAB -->
+        <div class="dashboard-main-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-chart-line"></i>
+                <span id="chartTitleMonthlyTemp">Monthly Mean Temperature Trend (°C)</span>
+              </div>
+              <span class="text-muted" style="font-size: 0.75rem;">12-Month Climatological Profile</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="districtMonthlyTempChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span id="chartTitleRainfall">Monthly Precipitation Distribution (mm)</span>
+              </div>
+              <span class="badge badge-subtle">SW vs. NE Monsoon Peaks</span>
+            </div>
+            <div style="height: 280px; position: relative;">
+              <canvas id="districtRainfallChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer-banner">
+          <i class="fa-solid fa-circle-info"></i>
+          <span><b>DATA PROVENANCE & VERIFICATION:</b> District climate metrics reflect published climatological reference normals from the India Meteorological Department (IMD) and Land Surface Temperature (LST) derived from NASA Earthdata MODIS sensors. Urban micro-zone indices are empirical simulation models calibrated for municipal heat action planning under Challenge 13 AI for Impact.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 2: INTERACTIVE TAMIL NADU DIGITAL TWIN MAP
+           ======================================================== -->
+      <section class="content-section" id="section-map">
+        <div class="section-hero">
+          <div>
+            <h2>Interactive Tamil Nadu Climate Digital Twin Map</h2>
+            <p>Geospatial heat-island modeling across all 38 official districts of Tamil Nadu, India, plus micro-urban monitoring zones in major metropolitan areas.</p>
+          </div>
+          <button class="btn btn-outline-cyan" onclick="CityMapController.fitTamilNaduBounds()">
+            <i class="fa-solid fa-expand"></i> Reset Tamil Nadu View
+          </button>
+        </div>
+
+        <div class="map-view-layout">
+          <div class="map-card-wrapper">
+            <div class="map-controls-bar">
+              <!-- BASE TILE SELECTOR -->
+              <div class="map-toolbar-group">
+                <span class="map-toolbar-label"><i class="fa-solid fa-layer-group"></i> Basemap:</span>
+                <button class="btn-map-layer active" onclick="CityMapController.setBaseLayer('dark'); this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
+                  <i class="fa-solid fa-moon"></i> Carto Dark
+                </button>
+                <button class="btn-map-layer" onclick="CityMapController.setBaseLayer('streets'); this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
+                  <i class="fa-solid fa-road"></i> OpenStreetMap
+                </button>
+                <button class="btn-map-layer" onclick="CityMapController.setBaseLayer('satellite'); this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
+                  <i class="fa-solid fa-satellite"></i> Satellite
+                </button>
+              </div>
+
+              <!-- VIEW MODE TOGGLE (Districts vs Urban Zones) -->
+              <div class="map-toolbar-group">
+                <span class="map-toolbar-label"><i class="fa-solid fa-crosshairs"></i> Scope:</span>
+                <button class="btn-map-layer btn-view-mode active" data-mode="districts">
+                  <i class="fa-solid fa-map"></i> 38 Districts
+                </button>
+                <button class="btn-map-layer btn-view-mode" data-mode="urban_zones">
+                  <i class="fa-solid fa-city"></i> Urban Micro-Zones
+                </button>
+                <button class="btn-map-layer btn-view-mode" data-mode="combined">
+                  <i class="fa-solid fa-object-group"></i> Combined
+                </button>
+              </div>
+
+              <!-- THEMATIC OVERLAY TOGGLE -->
+              <div class="map-toolbar-group">
+                <span class="map-toolbar-label"><i class="fa-solid fa-palette"></i> Thematic:</span>
+                <button class="btn-map-layer btn-theme-mode active" data-theme="heat_risk">
+                  <i class="fa-solid fa-fire-flame-curved"></i> Heat-Risk
+                </button>
+                <button class="btn-map-layer btn-theme-mode" data-theme="green_cover">
+                  <i class="fa-solid fa-tree"></i> Green Canopy
+                </button>
+                <button class="btn-map-layer btn-theme-mode" data-theme="population">
+                  <i class="fa-solid fa-users"></i> Pop Exposure
+                </button>
+              </div>
+            </div>
+
+            <!-- LEAFLET MAP ELEMENT -->
+            <div id="digitalTwinMap"></div>
+          </div>
+        </div>
+
+        <div class="disclaimer-banner" style="margin-top: 20px;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span><b>GEOSPATIAL DATA INTEGRITY:</b> District centroids and urban zone coordinates are geographically validated within Tamil Nadu, India. Marker colors reflect calculated risk thresholds: Red (&ge;70 Critical), Orange (55-69 High), Yellow (32-54 Moderate), Green (&lt;32 Low). Toggle between District-level and Micro-urban monitoring views using the controls above.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 3: URBAN HEAT-RISK ANALYSIS & FORMULA ENGINE
+           ======================================================== -->
+      <section class="content-section" id="section-analysis">
+        <div class="section-hero">
+          <div>
+            <h2>Heat-Risk Scientific Formulation & Explainability</h2>
+            <p>Transparent, auditable algorithmic breakdown separating aggravating thermal hazards from protective ecological resilience buffers.</p>
+          </div>
+          <div class="zone-selector-wrapper">
+            <label for="analysisZoneSelect"><i class="fa-solid fa-filter"></i> Analyzing Zone:</label>
+            <select id="analysisZoneSelect" class="custom-select"></select>
+          </div>
+        </div>
+
+        <!-- FORMULA TRANSPARENCY CARD -->
+        <div class="card formula-card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-square-root-variable"></i>
+              <span>Urban Heat Risk Index (UHRI) Algorithmic Model</span>
+            </div>
+            <span class="badge badge-subtle">Auditable Rule-Based Formula</span>
+          </div>
+
+          <div class="formula-display-box">
+            <b>UHRI = Clamp<sub>[0, 100]</sub> ( 0.75 &times; S<sub>hazard</sub> &minus; 0.25 &times; S<sub>protective</sub> + 12 )</b><br><br>
+            Where Hazard Pressure (S<sub>hazard</sub>) = 0.32 &times; Norm(T<sub>surface</sub>) + 0.22 &times; Norm(BuildingDensity) + 0.26 &times; Norm(PopExposure)<br>
+            Where Resilience Buffer (S<sub>protective</sub>) = 0.22 &times; Norm(GreenCover) + 0.12 &times; Norm(WaterAccess) + 0.14 &times; Norm(HealthResilience)
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="delta-box">
+              <span class="delta-title">Hazard Pressure (S<sub>hazard</sub>)</span>
+              <span class="delta-projected-val text-warning" id="analysisHazardScore">78.5 / 100</span>
+              <small class="text-muted">Aggravating factors</small>
+            </div>
+            <div class="delta-box">
+              <span class="delta-title">Protective Buffer (S<sub>protective</sub>)</span>
+              <span class="delta-projected-val text-success" id="analysisProtectiveScore">26.2 / 100</span>
+              <small class="text-muted">Mitigating ecological buffer</small>
+            </div>
+            <div class="delta-box" style="border-color: var(--border-cyan);">
+              <span class="delta-title">Final Calculated UHRI</span>
+              <span class="delta-projected-val text-cyan" id="analysisFinalScore">78.4 / 100</span>
+              <span class="zone-badge badge-critical" id="analysisFinalBadge">Critical Risk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DUAL COLUMN FOR RADAR AND NORMALIZED SUB-INDEX BARS -->
+        <div class="analysis-top-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-chart-radar"></i>
+                <span>Multi-Factor Risk Decomposition Radar</span>
+              </div>
+            </div>
+            <div style="height: 320px; position: relative;">
+              <canvas id="factorRadarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-bars-staggered"></i>
+                <span>Sub-Index Factor Normalization (0 - 100%)</span>
+              </div>
+            </div>
+            <div class="sub-index-bars">
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Surface Temperature Pressure [T<sub>surf</sub> &ge; 22°C]</span>
+                  <b id="barNormTemp-val">39.2°C (Norm: 86%)</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-hazard" id="barNormTemp" style="width: 86%;"></div>
+                </div>
+              </div>
+
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Building Canyon Density [% Urban Footprint]</span>
+                  <b id="barNormDensity-val">88% (Norm: 88%)</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-hazard" id="barNormDensity" style="width: 88%;"></div>
+                </div>
+              </div>
+
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Demographic Exposure Index [Elderly / Pediatric Density]</span>
+                  <b id="barNormPop-val">96/100 (Norm: 96%)</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-hazard" id="barNormPop" style="width: 96%;"></div>
+                </div>
+              </div>
+
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Green Canopy Buffer [% Resilient Canopy / Target 60%]</span>
+                  <b id="barNormGreen-val">7.1% (Target: 60%)</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-protective" id="barNormGreen" style="width: 12%;"></div>
+                </div>
+              </div>
+
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Water & Hydration Access Index</span>
+                  <b id="barNormWater-val">32/100</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-protective" id="barNormWater" style="width: 32%;"></div>
+                </div>
+              </div>
+
+              <div class="bar-item">
+                <div class="bar-item-header">
+                  <span>Healthcare & Emergency Response Capacity</span>
+                  <b id="barNormHealth-val">45/100</b>
+                </div>
+                <div class="custom-progress-track">
+                  <div class="custom-progress-fill fill-protective" id="barNormHealth" style="width: 45%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPLAINABLE AI DRIVERS SECTION -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-brain"></i>
+              <span>Explainable AI Risk Rationales (Why is this zone classified as such?)</span>
+            </div>
+            <span class="badge badge-subtle">Transparent Natural Language Drivers</span>
+          </div>
+
+          <div class="driver-cards-list" id="analysisDriversList">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <div class="disclaimer-banner">
+          <i class="fa-solid fa-scale-balanced"></i>
+          <span><b>ETHICAL HUMAN RIGHTS DIRECTIVE:</b> High demographic vulnerability indicators are exclusively utilized to channel public health funding, mobile hydration units, and cooling centers to historically underserved communities. They must never be used for zoning exclusion or punitive municipal disinvestment.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 4: CLIMATE INTERVENTION SIMULATOR
+           ======================================================== -->
+      <section class="content-section" id="section-simulator">
+        <div class="section-hero">
+          <div>
+            <h2>Climate Resilience Intervention Simulator</h2>
+            <p>Configure multi-layered climate engineering and nature-based solutions to simulate projected microclimate cooling and risk mitigation.</p>
+          </div>
+          <div class="zone-selector-wrapper">
+            <label for="simZoneSelect"><i class="fa-solid fa-bullseye"></i> Simulation Target:</label>
+            <select id="simZoneSelect" class="custom-select"></select>
+          </div>
+        </div>
+
+        <div class="simulator-layout">
+          <!-- INTERVENTION CONTROLS PANEL -->
+          <div class="card sim-controls-panel">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Configure Resilient Interventions</span>
+              </div>
+              <button class="btn btn-xs btn-ghost" id="btnResetSimulation">
+                <i class="fa-solid fa-arrow-rotate-left"></i> Reset Defaults
+              </button>
+            </div>
+
+            <!-- Dynamic list of 5 interventions from catalog -->
+            <div id="interventionCatalogList" style="display: flex; flex-direction: column; gap: 14px;">
+              <!-- Populated dynamically via JS -->
+            </div>
+
+            <div style="margin-top: 10px;">
+              <button class="btn btn-primary" id="btnRunSimulation" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                <i class="fa-solid fa-bolt"></i> Simulate Interventions & Recalculate
+              </button>
+            </div>
+          </div>
+
+          <!-- SIMULATED PROJECTION DASHBOARD -->
+          <div class="card sim-results-card">
+            <div class="card-header">
+              <div class="card-title">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Projected Climate Outcomes</span>
+              </div>
+              <span class="badge badge-subtle">Baseline vs. Simulation</span>
+            </div>
+
+            <!-- DELTA METRIC BOXES -->
+            <div class="sim-delta-grid">
+              <div class="delta-box">
+                <span class="delta-title">Heat-Risk Index (UHRI)</span>
+                <span class="delta-baseline-val" id="simBaselineScore">78.4 (Critical)</span>
+                <span class="delta-projected-val" id="simProjectedScore">54.2 (Moderate)</span>
+                <span class="metric-delta delta-positive" id="simDeltaScore">-24.2 pts</span>
+              </div>
+
+              <div class="delta-box">
+                <span class="delta-title">Estimated Surface Temp</span>
+                <span class="delta-baseline-val" id="simBaselineTemp">39.2°C</span>
+                <span class="delta-projected-val" id="simProjectedTemp">36.1°C</span>
+                <span class="metric-delta delta-positive" id="simDeltaTemp">-3.1°C</span>
+              </div>
+
+              <div class="delta-box">
+                <span class="delta-title">Projected Green Cover</span>
+                <span class="delta-baseline-val" id="simBaselineGreen">7.1%</span>
+                <span class="delta-projected-val" id="simProjectedGreen">30.8%</span>
+                <span class="metric-delta delta-positive" id="simDeltaGreen">+23.7%</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: var(--radius-md); margin-bottom: 16px;">
+              <span style="font-size: 0.82rem; color: var(--text-muted);"><i class="fa-solid fa-coins"></i> Estimated Capital Requirement:</span>
+              <strong id="simEstimatedCost" style="color: var(--cyan-primary); font-family: var(--font-mono); font-size: 1.1rem;">$585,000</strong>
+            </div>
+
+            <div class="sim-narrative-box">
+              <strong style="color: #ffffff; display: block; margin-bottom: 4px; font-size: 0.85rem;"><i class="fa-solid fa-wand-magic-sparkles text-cyan"></i> Algorithmic Impact Summary:</strong>
+              <p id="simExplainText">
+                Simulated deployment of 3 resilience intervention(s) projected an estimated 3.1°C surface cooling and reduced the Urban Heat Risk Index from 78.4 (Critical Risk) to 54.2 (Moderate Risk).
+              </p>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Active Applied Packages:</span>
+              <div class="sim-active-list-wrap" id="simActiveInterventionsList">
+                <!-- Badges populated dynamically -->
+              </div>
+            </div>
+
+            <!-- COMPARISON CHART -->
+            <div style="height: 250px; position: relative;">
+              <canvas id="simulationImpactChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer-banner" style="margin-top: 24px;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span><b>SCIENTIFIC ACCURACY NOTICE:</b> Projected temperature reductions and microclimate adaptations are illustrative computational models based on assumed physical cooling coefficients. They do not constitute certified post-implementation engineering guarantees. Actual microclimates depend on regional atmospheric wind dynamics, cloud cover, and solar zenith angles.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 6 & 7: RECOMMENDATIONS & TWO TIME HORIZONS
+           ======================================================== -->
+      <section class="content-section" id="section-recommendations">
+        <div class="section-hero">
+          <div>
+            <h2>Transparent Climate Resilience Recommendations</h2>
+            <p>Actionable, multi-tiered resilience directives tailored to thermal severity, infrastructure density, and human vulnerability.</p>
+          </div>
+          <div class="recommendations-header-tabs">
+            <button class="rec-time-tab active" data-horizon="all">
+              <i class="fa-solid fa-layer-group"></i> All Time Horizons
+            </button>
+            <button class="rec-time-tab" data-horizon="immediate">
+              <i class="fa-solid fa-bolt"></i> Immediate Response
+            </button>
+            <button class="rec-time-tab" data-horizon="longterm">
+              <i class="fa-solid fa-tree"></i> Long-Term Mitigation
+            </button>
+          </div>
+        </div>
+
+        <!-- TIME HORIZON A: IMMEDIATE RESPONSE -->
+        <div style="margin-bottom: 30px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <span class="pulse-dot" style="background: var(--risk-critical); box-shadow: 0 0 10px var(--risk-critical);"></span>
+            <h3 style="font-size: 1.25rem;">Horizon A: Immediate Response Protocols (0 - 72 Hours)</h3>
+          </div>
+          <div class="recommendations-grid" id="recImmediateContainer">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- TIME HORIZON B: LONG-TERM MITIGATION -->
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <span class="pulse-dot" style="background: var(--teal-accent); box-shadow: 0 0 10px var(--teal-accent);"></span>
+            <h3 style="font-size: 1.25rem;">Horizon B: Long-Term Urban Mitigation (6 - 36 Months)</h3>
+          </div>
+          <div class="recommendations-grid" id="recLongTermContainer">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <div class="disclaimer-banner" style="margin-top: 24px;">
+          <i class="fa-solid fa-user-shield"></i>
+          <span><b>HUMAN-IN-THE-LOOP OVERSIGHT:</b> Automated AI recommendations support human decision-makers and do not replace certified civil engineering assessments, environmental impact reviews, or democratic community consultations.</span>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 8: DATA MANAGEMENT & ZONE EXPLORER
+           ======================================================== -->
+      <section class="content-section" id="section-data">
+        <div class="section-hero">
+          <div>
+            <h2>Urban Zone Data Explorer</h2>
+            <p>Inspect, filter, sort, and export comprehensive thermal, vegetative, and demographic attributes across the digital twin dataset.</p>
+          </div>
+          <div class="table-actions">
+            <button class="btn btn-outline-cyan" id="btnExportCsv">
+              <i class="fa-solid fa-file-csv"></i> Export CSV
+            </button>
+            <button class="btn btn-primary" id="btnAddZoneModal">
+              <i class="fa-solid fa-plus"></i> Add New Sector
+            </button>
+          </div>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="table-search-box">
+            <i class="fa-solid fa-magnifying-glass text-muted"></i>
+            <input type="text" id="tableSearchInput" placeholder="Search district, urban zone, or land use..." aria-label="Search zones table">
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <label for="tableLocationTypeFilter" style="font-size: 0.85rem; color: var(--text-muted);">Scope:</label>
+            <select id="tableLocationTypeFilter" class="custom-select">
+              <option value="ALL">All Levels (Districts & Urban Zones)</option>
+              <option value="district" selected>Tamil Nadu Districts (38)</option>
+              <option value="urban_zone">Urban Micro-Zones Only</option>
+            </select>
+
+            <label for="tableRiskFilter" style="font-size: 0.85rem; color: var(--text-muted);">Risk:</label>
+            <select id="tableRiskFilter" class="custom-select">
+              <option value="ALL">All Risk Levels</option>
+              <option value="Critical Risk">Critical Risk (&ge;70)</option>
+              <option value="High Risk">High Risk (55-69)</option>
+              <option value="Moderate Risk">Moderate Risk (32-54)</option>
+              <option value="Low Risk">Low Risk (&lt;32)</option>
+            </select>
+
+            <label for="tableTempFilter" style="font-size: 0.85rem; color: var(--text-muted);">Temp Range:</label>
+            <select id="tableTempFilter" class="custom-select">
+              <option value="ALL">All Temp Ranges</option>
+              <option value="extreme">&gt; 40°C (Extreme Heat)</option>
+              <option value="high">36°C - 40°C (High Heat)</option>
+              <option value="moderate">&lt; 36°C (Moderate / Cool)</option>
+            </select>
+
+            <label for="tableStatusFilter" style="font-size: 0.85rem; color: var(--text-muted);">Data Status:</label>
+            <select id="tableStatusFilter" class="custom-select">
+              <option value="ALL">All Data Sources</option>
+              <option value="verified">Verified Historical Normal (IMD/NASA)</option>
+              <option value="benchmark">Micro-Sensor Benchmark</option>
+              <option value="simulated">Simulated / Demonstration</option>
+            </select>
+
+            <button class="btn btn-ghost btn-sm" id="btnResetDataset" title="Reset dataset to initial factory seed">
+              <i class="fa-solid fa-rotate-left"></i> Restore Seed
+            </button>
+          </div>
+        </div>
+
+        <!-- RESPONSIVE DATA TABLE -->
+        <div class="custom-table-responsive">
+          <table class="zones-table" id="zonesTable">
+            <thead>
+              <tr>
+                <th class="sortable-header" data-sort="id">ID <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="name">District Name <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="ambientTemp">Air Temp <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="surfaceTemp">Surface LST <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="annualRainfall">Rainfall <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="greenCover">Green Canopy <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="score">Heat-Risk (UHRI) <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable-header" data-sort="category">Classification <i class="fa-solid fa-sort"></i></th>
+                <th>Data Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="zonesTableBody">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- GREEN COVER COMPARISON CHART -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-leaf"></i>
+              <span>City-Wide Vegetative Canopy Distribution (%)</span>
+            </div>
+          </div>
+          <div style="height: 260px; position: relative;">
+            <canvas id="greenCoverComparisonChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           MODULE 9: METHODOLOGY & ETHICAL AI GOVERNANCE
+           ======================================================== -->
+      <section class="content-section" id="section-methodology">
+        <div class="section-hero">
+          <div>
+            <h2>Scientific Methodology & AI Ethics</h2>
+            <p>Transparent documentation of mathematical frameworks, microclimate models, and ethical safeguards governing the digital twin.</p>
+          </div>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>1. Physical Foundation & Urban Heat Island (UHI) Mechanics</h3>
+          <p>
+            Urban Heat Islands emerge due to the modification of land surfaces: replacement of open soil and vegetation with dark impervious materials (asphalt, concrete, masonry) possessing high thermal admittance and low albedo (&alpha; &le; 0.15). In addition, three-dimensional geometry creates "urban canyons" that trap multiple reflections of shortwave solar radiation and impede longwave nocturnal radiative cooling.
+          </p>
+          <div class="formula-callout">
+      <!-- ========================================================
+           SAAS MODULE: GOVERNMENT & MUNICIPAL PLANNING SUITE
+           ======================================================== -->
+      <section class="content-section" id="section-gov-dashboard">
+        <div class="section-hero">
+          <div>
+            <h2><i class="fa-solid fa-landmark text-primary"></i> Municipal Climate Planning & Capital Allocation</h2>
+            <p>Official Decision-Support System for District Collectors, Municipal Commissioners, and TNDSMA Emergency Operations.</p>
+          </div>
+          <button class="btn btn-outline-cyan" onclick="App.exportDistrictReport('gov')">
+            <i class="fa-solid fa-file-pdf"></i> Generate Official Planning Report
+          </button>
+        </div>
+
+        <!-- GOV KPIS -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header"><span class="kpi-title">Jurisdiction Profile</span><div class="kpi-icon"><i class="fa-solid fa-map-pin"></i></div></div>
+            <div class="kpi-value" id="govJurisdictionTitle">Chennai Metro</div>
+            <div class="kpi-subtitle">Greater Chennai Corporation (GCC)</div>
+          </div>
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-header"><span class="kpi-title">Critical Wards / Hotspots</span><div class="kpi-icon"><i class="fa-solid fa-fire"></i></div></div>
+            <div class="kpi-value text-danger" id="govCriticalHotspots">4 Zones</div>
+            <div class="kpi-subtitle">George Town, T. Nagar, Guindy, Vyasarpadi</div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-header"><span class="kpi-title">Vulnerable Population</span><div class="kpi-icon"><i class="fa-solid fa-users"></i></div></div>
+            <div class="kpi-value text-warning" id="govVulnerableCount">1,820,000</div>
+            <div class="kpi-subtitle">Geriatric, pediatric & informal workers</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header"><span class="kpi-title">Active Resilience Capital</span><div class="kpi-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div></div>
+            <div class="kpi-value text-success" id="govActiveCapital">₹3.90 Cr</div>
+            <div class="kpi-subtitle">3 municipal projects underway</div>
+          </div>
+        </div>
+
+        <!-- GOV PROJECTS & CAPITAL ALLOCATION -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-list-check text-cyan"></i>
+              <span>Authorized Municipal Resilience Projects (FY 2026-27)</span>
+            </div>
+            <button class="btn btn-outline-cyan btn-sm" onclick="App.openCreateProjectModal()">
+              <i class="fa-solid fa-plus"></i> New Municipal Project
+            </button>
+          </div>
+          <div class="custom-table-responsive">
+            <table class="zones-table">
+              <thead>
+                <tr>
+                  <th>Project ID</th>
+                  <th>Initiative Title</th>
+                  <th>Target District</th>
+                  <th>Intervention Strategy</th>
+                  <th>Allocated Budget</th>
+                  <th>Operational Status</th>
+                </tr>
+              </thead>
+              <tbody id="govProjectsTableBody">
+                <!-- Populated via API -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SAAS MODULE: INDUSTRY & ENTERPRISE ESG DASHBOARD
+           ======================================================== -->
+      <section class="content-section" id="section-industry-dashboard">
+        <div class="section-hero">
+          <div>
+            <h2><i class="fa-solid fa-building-shield" style="color: #c084fc;"></i> Enterprise Facility Climate Resilience & ESG Suite</h2>
+            <p>Private Industrial Site Exposure Management, Worker Heat-Stress Mitigation & Cool Roof Evaluation.</p>
+          </div>
+          <button class="btn btn-outline-cyan" onclick="App.openRegisterFacilityModal()">
+            <i class="fa-solid fa-plus-circle"></i> Register New Industrial Campus
+          </button>
+        </div>
+
+        <!-- INDUSTRY KPIS -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header"><span class="kpi-title">Registered Campuses</span><div class="kpi-icon"><i class="fa-solid fa-industry"></i></div></div>
+            <div class="kpi-value" id="indFacilityCount">3 Plants</div>
+            <div class="kpi-subtitle">TVS Mobility & Engineering Ltd.</div>
+          </div>
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-header"><span class="kpi-title">Outdoor Labor Exposure</span><div class="kpi-icon"><i class="fa-solid fa-person-digging"></i></div></div>
+            <div class="kpi-value text-danger" id="indWorkerCount">860 Personnel</div>
+            <div class="kpi-subtitle">Assembly yard, logistics & dispatch teams</div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-header"><span class="kpi-title">Total Industrial Roof Area</span><div class="kpi-icon"><i class="fa-solid fa-warehouse"></i></div></div>
+            <div class="kpi-value text-warning">47,000 m²</div>
+            <div class="kpi-subtitle">Eligible for high-albedo elastomeric coating</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header"><span class="kpi-title">ESG Audit Rating</span><div class="kpi-icon"><i class="fa-solid fa-shield-check"></i></div></div>
+            <div class="kpi-value text-success">Compliant</div>
+            <div class="kpi-subtitle">BRSR Core & ISO 14090 Climate Alignment</div>
+          </div>
+        </div>
+
+        <!-- TENANT REGISTERED FACILITIES -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-map-location text-cyan"></i>
+              <span>Tenant Facilities (Strict Multi-Tenant Isolation)</span>
+            </div>
+            <span class="badge badge-subtle"><i class="fa-solid fa-lock"></i> AES-Encrypted Private Tenant Store</span>
+          </div>
+          <div class="custom-table-responsive">
+            <table class="zones-table">
+              <thead>
+                <tr>
+                  <th>Facility ID</th>
+                  <th>Campus Name</th>
+                  <th>District / Location</th>
+                  <th>Facility Type</th>
+                  <th>Workforce Size</th>
+                  <th>Roof Area</th>
+                  <th>Resilience Level</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="indFacilitiesTableBody">
+                <!-- Populated via API -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SAAS MODULE: PLATFORM ADMINISTRATOR CONTROL PANEL
+           ======================================================== -->
+      <section class="content-section" id="section-admin-dashboard">
+        <div class="section-hero">
+          <div>
+            <h2><i class="fa-solid fa-screwdriver-wrench text-danger"></i> Platform Administration & Security Governance</h2>
+            <p>User Identity Management, Audit Logs, Multi-Tenant Health & Data Feed Diagnostics.</p>
+          </div>
+          <span class="badge badge-critical"><i class="fa-solid fa-shield"></i> System Superuser Level</span>
+        </div>
+
+        <!-- PLATFORM METRICS -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header"><span class="kpi-title">Registered Accounts</span><div class="kpi-icon"><i class="fa-solid fa-users-gear"></i></div></div>
+            <div class="kpi-value" id="adminUserCount">4 Users</div>
+            <div class="kpi-subtitle">Multi-role active directory</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-header"><span class="kpi-title">Security & Cryptography</span><div class="kpi-icon"><i class="fa-solid fa-key"></i></div></div>
+            <div class="kpi-value text-success">PBKDF2-SHA256</div>
+            <div class="kpi-subtitle">100,000 Rounds + Salt per user</div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-header"><span class="kpi-title">Data Ingestion Health</span><div class="kpi-icon"><i class="fa-solid fa-satellite-dish"></i></div></div>
+            <div class="kpi-value text-warning">100% Online</div>
+            <div class="kpi-subtitle">38/38 Districts IMD/NASA Synchronized</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header"><span class="kpi-title">Audit Log Entries</span><div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div></div>
+            <div class="kpi-value" id="adminAuditCount">Active</div>
+            <div class="kpi-subtitle">Immutable compliance trail</div>
+          </div>
+        </div>
+
+        <!-- USER DIRECTORY TABLE -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-user-shield text-cyan"></i>
+              <span>Tenant User Directory & Permissions</span>
+            </div>
+          </div>
+          <div class="custom-table-responsive">
+            <table class="zones-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Assigned Role</th>
+                  <th>Organization / Entity</th>
+                  <th>Jurisdiction</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Populated via API -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECURITY AUDIT TRAIL -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-clock-rotate-left text-cyan"></i>
+              <span>Security & Access Audit Trail</span>
+            </div>
+          </div>
+          <div class="custom-table-responsive">
+            <table class="zones-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Resource</th>
+                  <th>Client IP</th>
+                </tr>
+              </thead>
+              <tbody id="adminAuditTableBody">
+                <!-- Populated via API -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+          <p>
+            Our digital twin leverages parameterized approximations of sensible heat dissipation and latent cooling generated through vegetated canopy cover.
+          </p>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>2. Algorithmic Heat-Risk Scoring (UHRI) Transparency</h3>
+          <p>
+            Rather than relying on uninterpretable "black box" neural network weights, the Urban Heat Risk Index (UHRI) employs a normalized multicriteria evaluation system that is 100% auditable:
+          </p>
+          <ul>
+            <li><b>Thermal Hazard (32%):</b> Normalized surface temperature deviation above comfortable baseline (24°C).</li>
+            <li><b>Morphological Trapping (22%):</b> Building volume and impervious canyon density impediment factor.</li>
+            <li><b>Demographic Sensitivity (26%):</b> Concentration of pediatric (&lt;5 yrs) and elderly (&gt;65 yrs) cohorts with pre-existing cardiopulmonary vulnerability.</li>
+            <li><b>Vegetative Protection (&minus;22%):</b> Leaf area index and evaporative cooling offset.</li>
+            <li><b>Hydration Access (&minus;12%):</b> Distribution of public drinking water infrastructure.</li>
+            <li><b>Emergency Healthcare Resilience (&minus;14%):</b> Trauma hospital accessibility and surge capacity.</li>
+          </ul>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>3. Ethical AI Directives & Algorithmic Non-Discrimination</h3>
+          <p>
+            Under Challenge 13 guidelines, the ethical deployment of demographic vulnerability indices is enforced:
+          </p>
+          <ul>
+            <li><b>Equitable Resource Channeling:</b> Data indicating high population exposure is exclusively utilized to prioritize municipal capital allocation, emergency cooling centers, and urban canopy reforestation in historically disinvested neighborhoods.</li>
+            <li><b>No Punitive Classification:</b> The system strictly prohibits using vulnerability classifications to increase insurance premiums, depress property appraisals, or deny civic development.</li>
+            <li><b>Privacy Safeguard:</b> All demographic counts are aggregated at the municipal district level with no personally identifiable information (PII).</li>
+          </ul>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>4. Intervention Simulation Assumptions & Scientific Basis</h3>
+          <p>
+            The intervention engine models microclimate adjustments based on peer-reviewed empirical studies of urban heat mitigation (e.g., Santamouris et al., Akbari et al.). Reductions are mathematically bounded and labeled as <i>illustrative simulations</i>:
+          </p>
+          <ul>
+            <li><b>Urban Canopy Expansion:</b> Calculates microclimate cooling based on shading coefficient (&eta; = 0.65) and latent heat dissipation through evapotranspiration (&Delta;T &approx; &minus;0.05°C to &minus;0.08°C per +1% effective canopy cover).</li>
+            <li><b>High-Albedo Cool Roofs:</b> Modulates solar reflectance from &alpha; = 0.15 (standard bitumen/concrete) to &alpha; = 0.75+ (high-reflectance elastomeric coatings), attenuating thermal storage flux (G) and sensible heat release (H).</li>
+            <li><b>Shaded Public Spaces & Pedestrian Transit Corridors:</b> Drops radiant heat load on pedestrians, lowering demographic exposure pressure without requiring massive macro-scale air cooling.</li>
+            <li><b>Cooling Centres & Hydration Stations:</b> Strengthens civic resilience buffers (&Delta;S<sub>protective</sub>), elevating emergency healthcare capacity and water access for vulnerable populations.</li>
+          </ul>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>5. Data Provenance, Sources & Observation Windows</h3>
+          <ul>
+            <li><b>Surface Land Temperatures (LST):</b> Derived from NASA MODIS (Terra/Aqua MOD11A2 8-day composite 1km) and Landsat 8/9 Thermal Infrared Sensor (TIRS) calibrated at summer peak normals (April–June).</li>
+            <li><b>Ambient Air Temperatures & Normal Rainfall:</b> Grounded in historical climatological normals (1991–2020) and seasonal observation records from the India Meteorological Department (IMD) Regional Meteorological Centre, Chennai.</li>
+            <li><b>Forest & Canopy Cover:</b> India State of Forest Report (ISFR, Forest Survey of India) and Tamil Nadu Forest Department Green Tamil Nadu Mission baselines.</li>
+            <li><b>Demographic Sensitivity:</b> Census of India demographic structures, geriatric/pediatric population ratios, and district healthcare facility counts.</li>
+          </ul>
+        </div>
+
+        <div class="text-prose-card">
+          <h3>6. Assumptions, Constraints & Limitations</h3>
+          <ul>
+            <li><b>Prototype Scope:</b> The current score is a prototype indicator designed for prioritization and decision support. It is not an official government statutory heat-risk assessment.</li>
+            <li><b>Simulation Fidelity:</b> Projected outcomes are illustrative decision-support estimates. Actual localized cooling depends on micro-meteorology, wind corridors, soil moisture, and spatial layout.</li>
+            <li><b>Data Granularity:</b> Macro indicators are reported at district centroid levels; micro-urban zones represent high-density monitoring testbeds.</li>
+          </ul>
+        </div>
+
+        <!-- ABOUT CHALLENGE 13 & ARCHITECTURE -->
+        <div class="dashboard-main-grid" style="margin-top: 24px;">
+          <div class="text-prose-card" style="margin-bottom: 0;">
+            <h3>Project Mission & Challenge 13</h3>
+            <p>
+              Climate change is amplifying the intensity and duration of extreme heat waves across Tamil Nadu and South Asia. Extreme heat represents the single deadliest meteorological phenomenon, disproportionately threatening vulnerable populations who lack access to air conditioning and tree canopy shade.
+            </p>
+            <p>
+              The <b>UrbanTwin AI – Tamil Nadu Climate Digital Twin</b> bridges the gap between environmental science, explainable analytics, and municipal policy. Under <b>Challenge 13: AI for Impact (Climate Resilience)</b>, it empowers planners to evaluate heat vulnerability and simulate targeted interventions before committing infrastructure capital.
+            </p>
+          </div>
+
+          <div class="text-prose-card" style="margin-bottom: 0;">
+            <h3>Technical Architecture</h3>
+            <ul style="list-style: none; margin-left: 0;">
+              <li style="margin-bottom: 12px;">
+                <b class="text-cyan"><i class="fa-solid fa-code"></i> Frontend Stack:</b> Modern HTML5, Vanilla CSS3 (Dark Navy & Glowing Cyan), Modular ES6+ JavaScript.
+              </li>
+              <li style="margin-bottom: 12px;">
+                <b class="text-cyan"><i class="fa-solid fa-server"></i> Backend & Analytics:</b> Python 3, Flask REST API, Pandas, NumPy data processing.
+              </li>
+              <li style="margin-bottom: 12px;">
+                <b class="text-cyan"><i class="fa-solid fa-database"></i> Persistence:</b> SQLite database (<code>climate_twin.db</code>) with full 38-district schema.
+              </li>
+              <li style="margin-bottom: 12px;">
+                <b class="text-cyan"><i class="fa-solid fa-map"></i> Geospatial & Charts:</b> Leaflet.js with Carto Dark / OSM / Satellite tiles, Chart.js for radar and comparative analytics.
+              </li>
+              <li>
+                <b class="text-cyan"><i class="fa-solid fa-brain"></i> Algorithmic Core:</b> Explainable rule-based Urban Heat Risk Index (UHRI) & Intervention Simulator.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ============================================================
+       MODAL: ADD NEW URBAN SECTOR
+       ============================================================ -->
+  <div class="modal-overlay" id="addZoneModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-plus-circle text-cyan"></i> Register New Urban Sector</h3>
+        <button class="close-modal-btn" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="formAddZone">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inpZoneName">Monitoring Zone Name</label>
+              <input type="text" id="inpZoneName" class="form-control" placeholder="e.g. Koyambedu Market Corridor" required>
+            </div>
+            <div class="form-group">
+              <label for="inpDistrictSelect">Parent District (Tamil Nadu)</label>
+              <select id="inpDistrictSelect" class="form-control" required>
+                <option value="Chennai">Chennai</option>
+                <option value="Coimbatore">Coimbatore</option>
+                <option value="Madurai">Madurai</option>
+                <option value="Tiruchirappalli">Tiruchirappalli</option>
+                <option value="Salem">Salem</option>
+                <option value="Tiruppur">Tiruppur</option>
+                <option value="Erode">Erode</option>
+                <option value="Vellore">Vellore</option>
+                <option value="Thanjavur">Thanjavur</option>
+                <option value="Chengalpattu">Chengalpattu</option>
+                <option value="Kancheepuram">Kancheepuram</option>
+                <option value="Tirunelveli">Tirunelveli</option>
+                <option value="Thoothukudi">Thoothukudi</option>
+                <option value="Kanniyakumari">Kanniyakumari</option>
+                <option value="Dindigul">Dindigul</option>
+                <option value="Nilgiris">Nilgiris</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inpZoneType">Land Use Category</label>
+            <input type="text" id="inpZoneType" class="form-control" placeholder="e.g. High-Density Market & Bus Depot" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inpSurfaceTemp">Surface Temp (°C)</label>
+              <input type="number" id="inpSurfaceTemp" class="form-control" step="0.1" min="20" max="55" value="36.5" required>
+            </div>
+            <div class="form-group">
+              <label for="inpGreenCover">Green Canopy Cover (%)</label>
+              <input type="number" id="inpGreenCover" class="form-control" step="0.1" min="0" max="95" value="14.0" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inpDensity">Building Density (%)</label>
+              <input type="number" id="inpDensity" class="form-control" min="5" max="100" value="80" required>
+            </div>
+            <div class="form-group">
+              <label for="inpPopExposure">Exposure Score (0-100)</label>
+              <input type="number" id="inpPopExposure" class="form-control" min="0" max="100" value="75" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inpVulnerablePop">Vulnerable Population Count</label>
+              <input type="number" id="inpVulnerablePop" class="form-control" min="0" value="15000" required>
+            </div>
+            <div class="form-group">
+              <label for="inpWater">Water Availability (0-100)</label>
+              <input type="number" id="inpWater" class="form-control" min="0" max="100" value="50" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inpHealth">Healthcare Capacity (0-100)</label>
+            <input type="number" id="inpHealth" class="form-control" min="0" max="100" value="65" required>
+          </div>
+        </div>
+
+        <div style="padding: 16px 24px; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn btn-ghost close-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Add to Digital Twin</button>
+        </div>
+      </form>
+    </div>
+  <!-- ============================================================
+       MODAL: AUTHENTICATION (LOGIN / REGISTER / FORGOT PASSWORD)
+       ============================================================ -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 id="authModalTitle"><i class="fa-solid fa-lock text-cyan"></i> Secure Platform Access</h3>
+        <button class="close-modal-btn" onclick="App.closeAuthModal()" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 24px;">
+        <!-- TAB TOGGLE: LOGIN VS REGISTER -->
+        <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+          <button class="btn btn-sm btn-outline-cyan active" id="authTabLogin" onclick="App.toggleAuthTab('login')">Sign In</button>
+          <button class="btn btn-sm btn-ghost" id="authTabRegister" onclick="App.toggleAuthTab('register')">New Registration</button>
+          <button class="btn btn-sm btn-ghost" id="authTabForgot" onclick="App.toggleAuthTab('forgot')">Forgot Password</button>
+        </div>
+
+        <!-- FORM: LOGIN -->
+        <form id="formAuthLogin" onsubmit="App.handleLogin(event)">
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="loginEmail">Official / Work Email</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="name@organization.gov.in / com" required value="admin@urbantwin.ai">
+          </div>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required value="Admin@UrbanTwin2026!">
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 16px;">
+            Demo logins: <code>admin@urbantwin.ai</code> (Admin), <code>officer.chennai@tndsma.gov.in</code> (Gov), <code>sustainability@tvs-auto.com</code> (Industry), <code>citizen@gmail.com</code> (Public)
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Platform
+          </button>
+        </form>
+
+        <!-- FORM: REGISTER -->
+        <form id="formAuthRegister" style="display: none;" onsubmit="App.handleRegister(event)">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="regAccountType">Account Type / Tenant Tier</label>
+            <select id="regAccountType" class="form-control" onchange="App.onAccountTypeChange(this.value)" required>
+              <option value="government">Government / Municipal Authority</option>
+              <option value="industry">Industry / Enterprise ESG</option>
+              <option value="public" selected>Public User / Community Researcher</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="regFullName">Full Name / Designation</label>
+            <input type="text" id="regFullName" class="form-control" placeholder="e.g. S. Meenakshi" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="user@domain.com" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="regPassword">Password (Min 8 Characters)</label>
+            <input type="password" id="regPassword" class="form-control" minlength="8" placeholder="••••••••" required>
+          </div>
+
+          <!-- Dynamic Role Fields -->
+          <div id="regRoleFields">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="regDistrictPref">District Focus</label>
+              <select id="regDistrictPref" class="form-control">
+                <option value="Chennai">Chennai</option>
+                <option value="Coimbatore">Coimbatore</option>
+                <option value="Madurai">Madurai</option>
+                <option value="All">All 38 Districts</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+            <i class="fa-solid fa-user-plus"></i> Complete Registration
+          </button>
+        </form>
+
+        <!-- FORM: FORGOT PASSWORD -->
+        <form id="formAuthForgot" style="display: none;" onsubmit="App.handleForgot(event)">
+          <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 14px;">
+            Enter your registered email address. We will verify your account identity and send a secure reset token link.
+          </p>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="forgotEmail">Registered Email</label>
+            <input type="email" id="forgotEmail" class="form-control" placeholder="user@domain.com" required>
+          </div>
+          <button type="submit" class="btn btn-outline-cyan" style="width: 100%;">
+            <i class="fa-solid fa-paper-plane"></i> Send Password Reset Link
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE MUNICIPAL PROJECT (Gov Role) -->
+  <div class="modal-overlay" id="createProjectModal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-landmark text-primary"></i> Commission Municipal Resilience Project</h3>
+        <button class="close-modal-btn" onclick="document.getElementById('createProjectModal').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="App.handleCreateProject(event)">
+        <div class="modal-body" style="padding: 20px;">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>Project Initiative Title</label>
+            <input type="text" id="projTitle" class="form-control" placeholder="e.g. Madurai Central Temple Cool Pavement Corridor" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>Target District</label>
+            <select id="projDistrict" class="form-control">
+              <option value="chennai">Chennai</option>
+              <option value="coimbatore">Coimbatore</option>
+              <option value="madurai">Madurai</option>
+              <option value="salem">Salem</option>
+              <option value="tiruchirappalli">Tiruchirappalli</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>Intervention Strategy</label>
+            <select id="projStrategy" class="form-control">
+              <option value="Cool Roofs & Thermal Barrier">Cool Roofs & Thermal Barrier</option>
+              <option value="Green Canopy & Miyawaki Forest">Green Canopy & Miyawaki Forest</option>
+              <option value="Transit Corridor Shading & Misting">Transit Corridor Shading & Misting</option>
+              <option value="Emergency Cooling Refuges">Emergency Cooling Refuges</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estimated Capital Budget (INR)</label>
+            <input type="number" id="projBudget" class="form-control" value="7500000" step="100000" required>
+          </div>
+        </div>
+        <div style="padding: 16px 20px; background: rgba(0,0,0,0.3); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('createProjectModal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Authorize Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTER ENTERPRISE FACILITY (Industry Role) -->
+  <div class="modal-overlay" id="registerFacilityModal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-building-shield" style="color: #c084fc;"></i> Register Industrial Facility</h3>
+        <button class="close-modal-btn" onclick="document.getElementById('registerFacilityModal').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="App.handleRegisterFacility(event)">
+        <div class="modal-body" style="padding: 20px;">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>Facility / Campus Name</label>
+            <input type="text" id="facName" class="form-control" placeholder="e.g. Coimbatore Foundry Precinct Plant B" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>Host District</label>
+            <select id="facDistrict" class="form-control">
+              <option value="coimbatore">Coimbatore</option>
+              <option value="kancheepuram">Kancheepuram</option>
+              <option value="krishnagiri">Krishnagiri</option>
+              <option value="chennai">Chennai</option>
+              <option value="tiruppur">Tiruppur</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label>Workforce at Risk</label>
+              <input type="number" id="facWorkers" class="form-control" value="320" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label>Roof Area (sq.m)</label>
+              <input type="number" id="facRoofArea" class="form-control" value="12000" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Target Heat Defense Tier</label>
+            <select id="facTier" class="form-control">
+              <option value="Tier 1 Shading Core">Tier 1 Shading Core</option>
+              <option value="Tier 2 Heat Defense" selected>Tier 2 Heat Defense</option>
+              <option value="Tier 3 Active Shield">Tier 3 Active Shield</option>
+            </select>
+          </div>
+        </div>
+        <div style="padding: 16px 20px; background: rgba(0,0,0,0.3); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('registerFacilityModal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Register Facility</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ============================================================
+       SCRIPTS (LEAFLET, CHART.JS, CUSTOM ENGINES)
+       ============================================================ -->
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Modular Application Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/recommendations.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
